@@ -1,5 +1,8 @@
-# Open Plain Craft Launcher
+# PCL2 开源修改版
 
+[上游PCL仓库](https://github.com/Meloong-Git/PCL)
+
+本项目为基于上游PCL仓库，修改补全原开源版的部分重要功能而成的修改版本。<br/>
 使用 PCL 的大部分源代码，包括 UI 库、动画模块、下载模块、Minecraft 启动模块等，改造开源高可用版本 OpenPCL。<br/>
 本项目不与PCL CE相冲突。OpenPCL只对原版进行极少的改动，不会加入任何完全脱离原版的更新。<br/>
 
