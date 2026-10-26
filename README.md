@@ -19,3 +19,7 @@
 * 隐藏自动更新、在线公告与遥测相关的界面，移除匿名遥测上报功能；界面左上角标题栏默认显示 `OpenPCL`。
 
 * 若PCL仓库发布功能性更新，本项目修改适配后跟进。
+
+### 获取可执行文件
+
+请通过本项目的 [Github Actions](https://github.com/xtrackc1437/OpenPCL_Renew/actions) 实时构建 获取自动从源代码构建的二进制可执行文件。
