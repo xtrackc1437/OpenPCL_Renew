@@ -6,16 +6,33 @@ Friend Module ModSecret
     Public Const VersionBranchMain As String = "OpenSource"
     '在开源版的注册表与常规版的注册表隔离，以防数据冲突
     Public Const RegFolder As String = "PCLDebug"
-    '用于微软登录的 ClientId
-    Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "")
-    'CurseForge API Key
-    Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")
-    '用于匿名数据收集的腾讯云日志服务上报 URL，形如 https://{region}.cls.tencentcs.com/track?topic_id={topic_id}
-    Public Const ClsBaseUrl As String = ""
 
 #Region "网络鉴权"
 
-    Public Const RestrictMcDownload As Boolean = False
+    Private _OAuthClientId As String = Nothing
+    ''' <summary>
+    ''' 用于微软正版登录的 Client ID。
+    ''' 可在 设置 → 其他 → 网络 API 中填写，修改后需要重启启动器才会生效。
+    ''' </summary>
+    Public ReadOnly Property OAuthClientId As String
+        Get
+            If _OAuthClientId Is Nothing Then _OAuthClientId = Settings.Get(Of String)("ToolMsClientId").Trim()
+            Return _OAuthClientId
+        End Get
+    End Property
+
+    Private _CurseForgeAPIKey As String = Nothing
+    ''' <summary>
+    ''' 用于 CurseForge 相关接口的 API Key。
+    ''' 可在 设置 → 其他 → 网络 API 中填写，修改后需要重启启动器才会生效。
+    ''' </summary>
+    Public ReadOnly Property CurseForgeAPIKey As String
+        Get
+            If _CurseForgeAPIKey Is Nothing Then _CurseForgeAPIKey = Settings.Get(Of String)("ToolCurseForgeApiKey").Trim()
+            Return _CurseForgeAPIKey
+        End Get
+    End Property
+
     Friend Function SecretCdnSign(UrlWithMark As String) As String
         If Not UrlWithMark.EndsWithF("{CDN}") Then Return UrlWithMark
         Return UrlWithMark.Replace("{CDN}", "").Replace(" ", "%20")
@@ -34,12 +51,20 @@ Friend Module ModSecret
             End If
         End If
         If Not SimulateBrowserHeaders Then Req.Headers.Add("Referer", $"http://{VersionCode}.open.pcl2.server/")
-        If Url.Contains("api.curseforge.com") OrElse Url.Contains("forgecdn.net") Then Req.Headers.Add("x-api-key", CurseForgeAPIKey)
+        If (Url.Contains("api.curseforge.com") OrElse Url.Contains("forgecdn.net")) AndAlso CurseForgeAPIKey <> "" Then
+            Req.Headers.Add("x-api-key", CurseForgeAPIKey)
+        End If
     End Sub
 
 #End Region
 
 #Region "主题"
+
+    '主题配色固定为默认的“龙猫蓝”，不再提供主题切换
+    Public Const ColorHue As Integer = 210
+    Public Const ColorSat As Integer = 85
+    Public Const ColorLightAdjust As Integer = 0
+    Public Const ColorHueTopbarDelta As Integer = 0
 
     Public Color1 As New MyColor(52, 61, 74)
     Public Color2 As New MyColor(11, 91, 203)
@@ -61,15 +86,8 @@ Friend Module ModSecret
     Public ColorGray8 As New MyColor(245, 245, 245)
     Public ColorSemiTransparent As New MyColor(1, Color8)
 
-    Public ThemeNow As Integer = -1
-    Public ColorHue As Integer = 210, ColorSat As Integer = 85, ColorLightAdjust As Integer = 0, ColorHueTopbarDelta As OneOf(Of Integer, Integer()) = 0
-    Public ThemeDontClick As Integer = 0
-
-    Public Sub ThemeRefresh(Optional NewTheme As Integer = -1)
+    Public Sub ThemeRefresh()
         Try
-            If ThemeNow = NewTheme AndAlso NewTheme >= 0 Then Return
-            If NewTheme >= 0 Then ThemeNow = NewTheme
-
             Color1 = New MyColor().FromHSL2(ColorHue, ColorSat * 0.2, 25 + ColorLightAdjust * 0.3)
             Color2 = New MyColor().FromHSL2(ColorHue, ColorSat, 45 + ColorLightAdjust)
             Color3 = New MyColor().FromHSL2(ColorHue, ColorSat, 55 + ColorLightAdjust)
@@ -113,10 +131,9 @@ Friend Module ModSecret
             If Not FrmMain.IsLoaded Then Return
             '顶部条背景
             Dim Brush = New LinearGradientBrush With {.EndPoint = New Point(1, 0), .StartPoint = New Point(0, 0)}
-            Dim Deltas = ColorHueTopbarDelta.Switch(Function(d) New Integer() {-d, 0, d}, Function(d) d)
-            Brush.GradientStops.Add(New GradientStop With {.Offset = 0, .Color = New MyColor().FromHSL2(ColorHue + Deltas(0), ColorSat, 48 + ColorLightAdjust)})
-            Brush.GradientStops.Add(New GradientStop With {.Offset = 0.5, .Color = New MyColor().FromHSL2(ColorHue + Deltas(1), ColorSat, 54 + ColorLightAdjust)})
-            Brush.GradientStops.Add(New GradientStop With {.Offset = 1, .Color = New MyColor().FromHSL2(ColorHue + Deltas(2), ColorSat, 48 + ColorLightAdjust)})
+            Brush.GradientStops.Add(New GradientStop With {.Offset = 0, .Color = New MyColor().FromHSL2(ColorHue - ColorHueTopbarDelta, ColorSat, 48 + ColorLightAdjust)})
+            Brush.GradientStops.Add(New GradientStop With {.Offset = 0.5, .Color = New MyColor().FromHSL2(ColorHue, ColorSat, 54 + ColorLightAdjust)})
+            Brush.GradientStops.Add(New GradientStop With {.Offset = 1, .Color = New MyColor().FromHSL2(ColorHue + ColorHueTopbarDelta, ColorSat, 48 + ColorLightAdjust)})
             FrmMain.PanTitle.Background = Brush
             FrmMain.PanTitle.Background.Freeze()
             '主页面背景
@@ -132,14 +149,6 @@ Friend Module ModSecret
             FrmMain.PanForm.Background.Freeze()
         End Sub)
     End Sub
-    Friend Sub ThemeCheckAll(EffectSetup As Boolean)
-    End Sub
-    Friend Function ThemeCheckOne(Id As Integer) As Boolean
-        Return True
-    End Function
-    Friend Function ThemeUnlock(Id As Integer, Optional ShowDoubleHint As Boolean = True, Optional UnlockHint As String = Nothing) As Boolean
-        Return False
-    End Function
 
 #End Region
 
@@ -185,11 +194,6 @@ Friend Module ModSecret
             Return DonationRank.None
         End Get
     End Property
-
-    Public Sub InputPotatoCode(IsUpdating As Boolean)
-    End Sub
-    Friend Sub GeneratePotatoCode()
-    End Sub
 
     ''' <summary>
     ''' 获取设备识别码。

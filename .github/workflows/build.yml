@@ -60,7 +60,7 @@ jobs:
       run: dotnet restore PCLCS\PCLCS.csproj
 
     - name: Build
-      run: msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" -p:Configuration=${{ matrix.configuration }}
+      run: msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" -p:Configuration=${{ matrix.configuration }} -p:GenerateManifests=false -p:SignManifests=false
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v7
