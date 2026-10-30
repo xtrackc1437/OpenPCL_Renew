@@ -18,8 +18,16 @@
 
 * 隐藏自动更新、在线公告与遥测相关的界面，移除匿名遥测上报功能；界面左上角标题栏默认显示 `OpenPCL`。
 
+* 重新实现启动器更新：从本仓库的 GitHub Releases 与 GitHub Actions 构建记录检测新版本，提供 正式版 / 测试版 / 自动构建版 三个通道，可在 设置 → 其他 → 启动器更新 中切换与设置检查频率。
+
 * 若PCL仓库发布功能性更新，本项目修改适配后跟进。
 
 ### 获取可执行文件
 
-请通过本项目的 [Github Actions](https://github.com/xtrackc1437/OpenPCL_Renew/actions) 实时构建 获取自动从源代码构建的二进制可执行文件。
+推荐下载 [Releases](https://github.com/xtrackc1437/OpenPCL_Renew/releases) 中的版本；也可以在 [Github Actions](https://github.com/xtrackc1437/OpenPCL_Renew/actions) 中获取自动构建的二进制文件。
+
+### 发布新版本
+
+1. 修改 `Plain Craft Launcher 2/Modules/Base/ModBase.vb` 中的 `VersionBaseName` 与 `VersionCode`。
+2. 提交后打与版本号一致的标签（例如 `v2.99.1.1` 或 `2.99.1.1`）。
+3. `Release` 工作流会校验标签与版本号是否一致，构建并发布带 exe 资产的 Release。

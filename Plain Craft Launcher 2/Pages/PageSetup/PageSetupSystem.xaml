@@ -104,6 +104,41 @@
                     <local:MyCheckBox Text="自动设置为中文" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" x:Name="CheckHelpChinese" local:SettingService.Key="ToolHelpChinese" />
                 </Grid>
             </local:MyCard>
+            <local:MyCard x:Name="CardUpdate" Margin="0,0,0,15" Title="启动器更新">
+                <Grid Margin="25,40,25,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="9" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="9" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="更新通道" Margin="0,0,25,0" />
+                    <local:MyComboBox x:Name="ComboUpdateChannel" Grid.Column="1" local:SettingService.Key="ToolUpdateChannel" HorizontalAlignment="Left" Width="320">
+                        <local:MyComboBoxItem Content="正式版（GitHub Releases）" IsSelected="True" ToolTip="从仓库的 Releases 中获取最新的正式版本" />
+                        <local:MyComboBoxItem Content="测试版（含预发布版本）" ToolTip="在 Releases 中获取最新发布的版本，包含预发布版本" />
+                        <local:MyComboBoxItem Content="自动构建版（GitHub Actions）" ToolTip="获取 Build 工作流最近一次成功的自动构建，可能不稳定" />
+                    </local:MyComboBox>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="自动检查" Grid.Row="2" Margin="0,0,25,0" />
+                    <local:MyComboBox x:Name="ComboUpdateCheck" Grid.Row="2" Grid.Column="1" local:SettingService.Key="ToolUpdateCheck" HorizontalAlignment="Left" Width="320">
+                        <local:MyComboBoxItem Content="每次启动时检查" IsSelected="True" />
+                        <local:MyComboBoxItem Content="每 6 小时检查一次" />
+                        <local:MyComboBoxItem Content="每天检查一次" />
+                        <local:MyComboBoxItem Content="从不自动检查" />
+                    </local:MyComboBox>
+                    <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,5,0,0">
+                        <local:MyButton x:Name="BtnUpdateCheck" MinWidth="140" Text="检查更新" Padding="13,0" />
+                        <local:MyButton x:Name="BtnUpdatePage" MinWidth="140" Text="打开 Releases" Padding="13,0" Margin="20,0,0,0" />
+                    </StackPanel>
+                    <TextBlock x:Name="LabUpdateVersion" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.6" Text="当前版本" />
+                    <local:MyLoading x:Name="LoadUpdate" Grid.Row="5" Grid.ColumnSpan="2" ShowProgress="True" Text="正在下载更新" Visibility="Collapsed" Height="95" Margin="0,12,0,0" />
+                </Grid>
+            </local:MyCard>
             <local:MyCard Margin="0,0,0,15" Title="启动器">
                 <Grid Margin="25,40,25,20">
                     <Grid.ColumnDefinitions>

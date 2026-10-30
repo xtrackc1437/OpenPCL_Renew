@@ -21,6 +21,7 @@ Public Class Settings
         New Setting("HintIndieSetup", False, Source:=Sources.Registry),
         New Setting("HintExportConfig", False, Source:=Sources.Registry),
         New Setting("HintSnapshot", False, Source:=Sources.Registry),
+        New Setting("HintOpenSourceNotice", False, Source:=Sources.Registry),
         New Setting("SystemEulaVersion", 0, Source:=Sources.Registry),
         New Setting("SystemCount", 0, Source:=Sources.Registry, Encrypted:=True),
         New Setting("SystemLaunchCount", 0, Source:=Sources.Registry, Encrypted:=True),
@@ -125,6 +126,10 @@ Public Class Settings
         New Setting("ToolUpdateSnapshot", False, Source:=Sources.Registry),
         New Setting("ToolUpdateReleaseLast", "", Source:=Sources.Registry),
         New Setting("ToolUpdateSnapshotLast", "", Source:=Sources.Registry),
+        New Setting("ToolUpdateChannel", 0, Source:=Sources.Registry),
+        New Setting("ToolUpdateCheck", 0, Source:=Sources.Registry),
+        New Setting("CacheUpdateResult", "", Source:=Sources.Registry, Encrypted:=True),
+        New Setting("CacheUpdateHinted", "", Source:=Sources.Registry),
         New Setting("UiLauncherTransparent", 600, OnChanged:=Sub(Value As Integer) If FrmMain IsNot Nothing Then FrmMain.Opacity = Value / 1000 + 0.4), '避免与 PCL1 设置冲突（UiLauncherOpacity）
         New Setting("UiLauncherLogo", True),
         New Setting("UiLauncherEmail", False),

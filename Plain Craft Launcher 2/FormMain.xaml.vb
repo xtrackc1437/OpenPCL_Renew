@@ -442,19 +442,21 @@ Public Class FormMain
                 DlClientListMojangLoader.Start(1) 'PCL 会同时根据这里的加载结果决定是否使用官方源进行下载
                 RunCountSub()
                 ServerLoader.Start()
+                UpdateAutoCheckStart()
                 RunInNewThread(AddressOf TryClearTaskTemp, "TryClearTaskTemp", ThreadPriority.BelowNormal)
             Catch ex As Exception
                 Logger.Error(ex, "初始化加载池运行失败")
             End Try
-            '清理自动更新文件
+            '清理上次更新留下的文件
             Try
-                FileUtils.Delete(Paths.Base & "PCL\Plain Craft Launcher 2.exe")
+                UpdateStartupCleanup()
             Catch ex As Exception
                 Logger.Warn(ex, "清理自动更新文件失败")
             End Try
             '开源版本提示
-            If VersionBranchMain = "OpenSource" Then
-                MyMsgBox($"该版本中无法使用以下特性：{vbCrLf}- 更新与联网通知：避免滥用隐患{vbCrLf}- 百宝箱：开发早期往里面塞了些开发工具，整理起来太麻烦了……{vbCrLf}{vbCrLf}CurseForge 与正版登录所需的 API 凭据可在 设置 → 其他 → 网络 API 中填写。", "开源版本说明")
+            If VersionBranchMain = "OpenSource" AndAlso Not Settings.Get(Of Boolean)("HintOpenSourceNotice") Then
+                Settings.Set("HintOpenSourceNotice", True)
+                MyMsgBox($"该版本中无法使用以下特性：{vbCrLf}- 百宝箱：开发早期往里面塞了些开发工具，整理起来太麻烦了……{vbCrLf}{vbCrLf}CurseForge 与正版登录所需的 API 凭据可在 设置 → 其他 → 网络 API 中填写。{vbCrLf}启动器更新通道与检查频率可在 设置 → 其他 → 启动器更新 中调整。", "开源版本说明")
             End If
         End Sub, "初始化", ThreadPriority.Lowest)
 

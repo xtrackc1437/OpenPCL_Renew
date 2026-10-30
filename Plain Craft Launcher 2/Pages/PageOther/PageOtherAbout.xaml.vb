@@ -14,4 +14,8 @@ Public Class PageOtherAbout
 
     End Sub
 
+    Private Sub BtnAboutUpdate_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnAboutUpdate.Click
+        UpdateCheckByButton()
+    End Sub
+
 End Class

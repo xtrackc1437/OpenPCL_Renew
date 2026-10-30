@@ -87,20 +87,21 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <!-- 本工程不通过 ClickOnce 分发，因此关闭 ClickOnce 清单生成。
+       GenerateManifests=true 时会走 ClickOnce 分支：把 app.manifest 当作“基础清单”去逐个解析
+       其中的依赖并计算哈希，而 Microsoft.Windows.Common-Controls 是系统自带的 Win32 程序集，
+       磁盘上并无对应文件，于是报“未能找到文件 Microsoft.Windows.Common-Controls...”。
+       关闭后会改走普通分支：app.manifest 直接作为 Win32 清单嵌入 exe
+       （requestedExecutionLevel / longPathAware / PerMonitorV2 DPI / comctl32 v6 依赖全部保留），
+       同时不再需要临时证书签名，故一并关闭 SignManifests。 -->
   <PropertyGroup>
-    <ManifestCertificateThumbprint>CE7A815CD81401B559C8649A3EEA43B75ECB8FC5</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>Plain Craft Launcher 2_TemporaryKey.pfx</ManifestKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -255,6 +256,7 @@
     <Compile Include="Modules\ModDevelop.vb" />
     <Compile Include="Modules\Minecraft\ModWatcher.vb" />
     <Compile Include="Modules\ModSecret.vb" />
+    <Compile Include="Modules\ModUpdate.vb" />
     <Compile Include="Pages\PageDownload\Resource\PageResource.xaml.vb">
       <DependentUpon>PageResource.xaml</DependentUpon>
     </Compile>

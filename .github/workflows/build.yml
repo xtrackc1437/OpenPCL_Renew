@@ -10,6 +10,9 @@ on:
       - '.github/workflows/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build
@@ -52,8 +55,6 @@ jobs:
 
     - name: Replace
       run: |
-        (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "")', 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "${{ secrets.CLIENT_ID }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
-        (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")', 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "${{ secrets.CURSEFORGE_API_KEY }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
         (gc "Plain Craft Launcher 2\Modules\Base\ModBase.vb") -replace 'Public Const CommitHash As String = ""', 'Public Const CommitHash As String = "${{ github.sha }}"' | Out-File "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
         
     - name: Restore NuGet Packages
@@ -67,3 +68,29 @@ jobs:
       with:
         name: ${{ matrix.configuration }} ${{ env.describe }}
         path: Plain Craft Launcher 2\obj\${{ matrix.configuration }}\Plain Craft Launcher 2.exe
+
+    # 将 main 分支的正式配置构建发布到 nightly 预发布，供启动器的「自动构建版」通道下载
+    - name: Publish Nightly Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.configuration == 'Release'
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $short = $env:GITHUB_SHA.Substring(0, 7)
+        $asset = "OpenPCL-Renew-$short.exe"
+        Copy-Item 'Plain Craft Launcher 2\obj\Release\Plain Craft Launcher 2.exe' $asset
+
+        gh release view nightly --json tagName *> $null
+        if ($LASTEXITCODE -ne 0) {
+          gh release create nightly --prerelease --title '自动构建（nightly）' --notes '由 GitHub Actions 自动构建，可能不稳定。'
+        }
+
+        # 只保留当前构建的产物，避免 nightly 页面无限堆积
+        $oldAssets = gh release view nightly --json assets --jq '.assets[].name'
+        foreach ($name in $oldAssets) {
+          if ($name -and $name -ne $asset) { gh release delete-asset nightly $name --yes }
+        }
+
+        gh release upload nightly $asset --clobber
+        gh release edit nightly --notes "自动构建 $short`n`n- 提交：https://github.com/${{ github.repository }}/commit/$env:GITHUB_SHA`n- 运行：https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`n`n该版本由 GitHub Actions 自动构建，可能不稳定。"
